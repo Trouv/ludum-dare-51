@@ -12,7 +12,11 @@ pub struct PlatformPlugin;
 impl Plugin for PlatformPlugin {
     fn build(&self, app: &mut App) {
         app.register_ldtk_entity::<PlatformBundle>("Platform")
-            .add_system(platform_movement.run_in_state(GameState::Gameplay));
+            .add_system(
+                platform_movement
+                    .run_in_state(GameState::Gameplay)
+                    .after("update_time"),
+            );
     }
 }
 
@@ -151,7 +155,9 @@ fn platform_movement(
         for (mut transform, mut path, mut history, mut velocity) in query.iter_mut() {
             // Popping items off the history if we've passed them
             if let Some(goal_moment) = history.moments.last() {
-                if time_since_level_start.0 < goal_moment.timestamp {
+                if time_since_level_start.0 < goal_moment.timestamp
+                    || time_since_level_start.0 == 0.
+                {
                     let PlatformMoment::ChangeDirection { position, .. } = goal_moment.data;
                     if history.moments.len() > 1 {
                         transform.translation = position;

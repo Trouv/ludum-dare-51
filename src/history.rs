@@ -21,7 +21,11 @@ impl Plugin for HistoryPlugin {
             .add_system(|time_since_level_start: Res<TimeSinceLevelStart>| {
                 dbg!(time_since_level_start);
             })
-            .add_system(update_time.run_in_state(GameState::Gameplay));
+            .add_system(
+                update_time
+                    .run_in_state(GameState::Gameplay)
+                    .label("update_time"),
+            );
     }
 }
 
