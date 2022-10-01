@@ -105,6 +105,7 @@ pub struct ColliderBundle {
     pub locked_axes: LockedAxes,
     pub friction: Friction,
     pub restitution: Restitution,
+    pub active_events: ActiveEvents,
 }
 
 impl From<EntityInstance> for ColliderBundle {
@@ -134,6 +135,7 @@ impl From<EntityInstance> for ColliderBundle {
                 collider: Collider::cuboid(16., 16.),
                 rigid_body: RigidBody::Fixed,
                 locked_axes: LockedAxes::ROTATION_LOCKED,
+                active_events: ActiveEvents::COLLISION_EVENTS,
                 ..Default::default()
             },
             _ => ColliderBundle::default(),

@@ -1,13 +1,15 @@
-use crate::{animation::SpriteSheetAnimation, from_component::*, player::ColliderBundle};
+use crate::{animation::SpriteSheetAnimation, from_component::*, player::*, GameState};
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
+use iyes_loopless::prelude::*;
 
 pub struct GoalPlugin;
 
 impl Plugin for GoalPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(FromComponentPlugin::<Goal, SpriteSheetAnimation>::new())
+            .add_system(victory.run_in_state(GameState::Gameplay))
             .register_ldtk_entity::<GoalBundle>("Goal");
     }
 }
@@ -33,6 +35,28 @@ impl From<Goal> for SpriteSheetAnimation {
             indices: 72..78,
             repeat: true,
             frame_timer: Timer::from_seconds(0.2, true),
+        }
+    }
+}
+
+fn victory(
+    player_query: Query<Entity, With<Player>>,
+    goal_query: Query<Entity, With<Goal>>,
+    mut collision_events: EventReader<CollisionEvent>,
+    mut level_selection: ResMut<LevelSelection>,
+) {
+    for collision in collision_events.iter() {
+        match collision {
+            CollisionEvent::Started(a, b, _) => {
+                if player_query.contains(*a) && goal_query.contains(*b)
+                    || player_query.contains(*b) && goal_query.contains(*a)
+                {
+                    if let LevelSelection::Index(level_index) = *level_selection {
+                        *level_selection = LevelSelection::Index(level_index + 1);
+                    }
+                }
+            }
+            _ => (),
         }
     }
 }
