@@ -158,8 +158,16 @@ pub fn movement(
     mut x_velocity_contribution: Local<f32>,
 ) {
     for (mut velocity, mut animation_state, mut sprite, ground_detection) in query.iter_mut() {
-        let right = if input.pressed(KeyCode::D) { 1. } else { 0. };
-        let left = if input.pressed(KeyCode::A) { 1. } else { 0. };
+        let right = if input.pressed(KeyCode::D) || input.pressed(KeyCode::Right) {
+            1.
+        } else {
+            0.
+        };
+        let left = if input.pressed(KeyCode::A) || input.pressed(KeyCode::Left) {
+            1.
+        } else {
+            0.
+        };
 
         let max_contribution = 250.;
         if ground_detection.on_ground {

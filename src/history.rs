@@ -9,13 +9,13 @@ pub struct HistoryPlugin;
 
 impl Plugin for HistoryPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(EventSchedulerPlugin::<RewindEvent>::new())
+        app.add_plugin(EventSchedulerPlugin::<TimeEvent>::new())
             .insert_resource(TimeScale(1.))
             .insert_resource(TimeSinceLevelStart(0.))
             .add_system(rewind.run_in_state(GameState::Gameplay))
             .add_system(
                 stop_rewind
-                    .run_on_event::<RewindEvent>()
+                    .run_on_event::<TimeEvent>()
                     .run_in_state(GameState::Gameplay),
             )
             //.add_system(|time_since_level_start: Res<TimeSinceLevelStart>| {
@@ -46,27 +46,32 @@ pub struct TimeSinceLevelStart(pub f32);
 #[derive(Copy, Clone, PartialEq, Debug, Default)]
 pub struct TimeScale(pub f32);
 
-pub enum RewindEvent {
-    Start,
-    Stop,
+pub enum TimeEvent {
+    Rewind,
+    FastForward,
+    Normal,
 }
 
 pub fn rewind(
     input: Res<Input<KeyCode>>,
     mut time_scale: ResMut<TimeScale>,
-    mut rewind_event_scheduler: ResMut<EventScheduler<RewindEvent>>,
+    mut rewind_event_scheduler: ResMut<EventScheduler<TimeEvent>>,
 ) {
-    if input.just_pressed(KeyCode::Z) && time_scale.0 >= 0. {
+    if input.just_pressed(KeyCode::Z) && time_scale.0 == 1. {
         *time_scale = TimeScale(-10.);
-        rewind_event_scheduler.schedule(RewindEvent::Start, Duration::ZERO);
-        rewind_event_scheduler.schedule(RewindEvent::Stop, Duration::from_millis(1000));
+        rewind_event_scheduler.schedule(TimeEvent::Rewind, Duration::ZERO);
+        rewind_event_scheduler.schedule(TimeEvent::Normal, Duration::from_millis(200));
+    } else if input.just_pressed(KeyCode::X) && time_scale.0 == 1. {
+        *time_scale = TimeScale(10.);
+        rewind_event_scheduler.schedule(TimeEvent::FastForward, Duration::ZERO);
+        rewind_event_scheduler.schedule(TimeEvent::Normal, Duration::from_millis(200));
     }
 }
 
-pub fn stop_rewind(mut rewind_events: EventReader<RewindEvent>, mut time_scale: ResMut<TimeScale>) {
+pub fn stop_rewind(mut rewind_events: EventReader<TimeEvent>, mut time_scale: ResMut<TimeScale>) {
     for e in rewind_events.iter() {
         match e {
-            RewindEvent::Stop => {
+            TimeEvent::Normal => {
                 *time_scale = TimeScale(1.);
             }
             _ => (),
