@@ -31,13 +31,14 @@ fn main() {
                 .with_collection::<AssetHolder>(),
         )
         .add_plugins(DefaultPlugins)
+        .insert_resource(Msaa { samples: 1 })
         .add_plugin(LdtkPlugin)
         .insert_resource(LdtkSettings {
             int_grid_rendering: IntGridRendering::Colorful,
             ..default()
         })
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
-        .add_plugin(RapierDebugRenderPlugin::default())
+        //.add_plugin(RapierDebugRenderPlugin::default())
         .insert_resource(RapierConfiguration {
             gravity: Vec2::ZERO,
             ..default()

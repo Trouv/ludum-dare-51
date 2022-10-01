@@ -125,7 +125,7 @@ impl From<EntityInstance> for ColliderBundle {
                 ..Default::default()
             },
             "Platform" => ColliderBundle {
-                collider: Collider::cuboid(8., 8.),
+                collider: Collider::cuboid(16., 16.),
                 rigid_body: RigidBody::KinematicVelocityBased,
                 locked_axes: LockedAxes::ROTATION_LOCKED,
                 ..Default::default()
