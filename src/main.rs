@@ -2,13 +2,14 @@ mod animation;
 mod camera;
 mod event_scheduler;
 mod from_component;
+mod goals;
 mod history;
 mod level_transition;
 mod platform;
 mod player;
 mod wall;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, render::texture::ImageSettings};
 use bevy_asset_loader::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -30,6 +31,7 @@ fn main() {
                 .continue_to_state(GameState::Gameplay)
                 .with_collection::<AssetHolder>(),
         )
+        .insert_resource(ImageSettings::default_nearest())
         .add_plugins(DefaultPlugins)
         .insert_resource(Msaa { samples: 1 })
         .add_plugin(LdtkPlugin)
@@ -50,6 +52,7 @@ fn main() {
         .add_plugin(history::HistoryPlugin)
         .add_plugin(platform::PlatformPlugin)
         .add_plugin(animation::SpriteSheetAnimationPlugin)
+        .add_plugin(goals::GoalPlugin)
         .insert_resource(LevelSelection::Index(0))
         .run();
 }

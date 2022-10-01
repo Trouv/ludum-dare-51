@@ -130,6 +130,12 @@ impl From<EntityInstance> for ColliderBundle {
                 locked_axes: LockedAxes::ROTATION_LOCKED,
                 ..Default::default()
             },
+            "Goal" => ColliderBundle {
+                collider: Collider::cuboid(16., 16.),
+                rigid_body: RigidBody::Fixed,
+                locked_axes: LockedAxes::ROTATION_LOCKED,
+                ..Default::default()
+            },
             _ => ColliderBundle::default(),
         }
     }
