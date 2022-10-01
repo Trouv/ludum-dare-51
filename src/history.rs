@@ -18,6 +18,9 @@ impl Plugin for HistoryPlugin {
                     .run_on_event::<RewindEvent>()
                     .run_in_state(GameState::Gameplay),
             )
+            .add_system(|time_since_level_start: Res<TimeSinceLevelStart>| {
+                dbg!(time_since_level_start);
+            })
             .add_system(update_time.run_in_state(GameState::Gameplay));
     }
 }
@@ -49,7 +52,7 @@ pub fn rewind(
     mut time_scale: ResMut<TimeScale>,
     mut rewind_event_scheduler: ResMut<EventScheduler<RewindEvent>>,
 ) {
-    if input.just_pressed(KeyCode::Z) {
+    if input.just_pressed(KeyCode::Z) && time_scale.0 >= 0. {
         *time_scale = TimeScale(-20.);
         rewind_event_scheduler.schedule(RewindEvent::Start, Duration::ZERO);
         rewind_event_scheduler.schedule(RewindEvent::Stop, Duration::from_millis(500));
@@ -68,10 +71,14 @@ pub fn stop_rewind(mut rewind_events: EventReader<RewindEvent>, mut time_scale: 
 }
 
 pub fn update_time(
-    time_scale: Res<TimeScale>,
+    mut time_scale: ResMut<TimeScale>,
     mut time_since_level_start: ResMut<TimeSinceLevelStart>,
     bevy_time: Res<Time>,
 ) {
-    time_since_level_start.0 =
-        (time_since_level_start.0 + bevy_time.delta_seconds() * time_scale.0).max(0.);
+    time_since_level_start.0 = time_since_level_start.0 + bevy_time.delta_seconds() * time_scale.0;
+
+    if time_since_level_start.0 < 0. {
+        time_since_level_start.0 = 0.;
+        time_scale.0 = 0.;
+    }
 }

@@ -108,7 +108,7 @@ struct PlatformBundle {
 
 fn platform_movement(
     mut query: Query<(
-        &Transform,
+        &mut Transform,
         &mut Path,
         &mut History<PlatformMoment>,
         &mut Velocity,
@@ -148,34 +148,35 @@ fn platform_movement(
             velocity.linvel = new_velocity;
         }
     } else {
-        for (transform, mut path, mut history, mut velocity) in query.iter_mut() {
+        for (mut transform, mut path, mut history, mut velocity) in query.iter_mut() {
+            // Popping items off the history if we've passed them
             if let Some(goal_moment) = history.moments.last() {
                 if time_since_level_start.0 < goal_moment.timestamp {
-                    history.moments.pop();
+                    let PlatformMoment::ChangeDirection { position, .. } = goal_moment.data;
+                    if history.moments.len() > 1 {
+                        transform.translation = position;
 
-                    if path.index == 0 {
-                        path.index = path.points.len() - 1;
-                    } else {
-                        path.index -= 1;
+                        history.moments.pop();
+
+                        if path.index == 0 {
+                            path.index = path.points.len() - 1;
+                        } else {
+                            path.index -= 1;
+                        }
                     }
                 }
             }
 
+            // actually apply the history
             if let Some(goal_moment) = history.moments.last() {
                 match goal_moment.data {
                     PlatformMoment::ChangeDirection {
-                        position: goal_position,
-                        velocity: _,
+                        position: _,
+                        velocity: goal_velocity,
                     } => {
-                        velocity.linvel = (goal_position - transform.translation)
-                            .truncate()
-                            .normalize()
-                            * path.speed
-                            * time_scale.0.abs();
+                        velocity.linvel = goal_velocity * time_scale.0;
                     }
                 }
-            } else {
-                velocity.linvel = Vec2::ZERO;
             }
         }
     }
