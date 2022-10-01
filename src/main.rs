@@ -1,5 +1,7 @@
+mod animation;
 mod camera;
 mod event_scheduler;
+mod from_component;
 mod history;
 mod level_transition;
 mod platform;
@@ -46,6 +48,7 @@ fn main() {
         .add_plugin(level_transition::LevelTransitionPlugin)
         .add_plugin(history::HistoryPlugin)
         .add_plugin(platform::PlatformPlugin)
+        .add_plugin(animation::SpriteSheetAnimationPlugin)
         .insert_resource(LevelSelection::Index(0))
         .run();
 }
