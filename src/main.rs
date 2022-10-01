@@ -1,5 +1,8 @@
 mod camera;
+mod event_scheduler;
+mod history;
 mod level_transition;
+mod platform;
 mod player;
 mod wall;
 
@@ -41,6 +44,8 @@ fn main() {
         .add_plugin(player::PlayerPlugin)
         .add_plugin(camera::CameraPlugin)
         .add_plugin(level_transition::LevelTransitionPlugin)
+        .add_plugin(history::HistoryPlugin)
+        .add_plugin(platform::PlatformPlugin)
         .insert_resource(LevelSelection::Index(0))
         .run();
 }

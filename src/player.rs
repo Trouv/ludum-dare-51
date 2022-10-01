@@ -8,7 +8,35 @@ use std::collections::HashSet;
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Component)]
 pub struct Player;
 
-#[derive(Component)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash)]
+pub struct PlayerPlugin;
+
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_system(movement.run_in_state(GameState::Gameplay))
+            .add_system(spawn_ground_sensor.run_in_state(GameState::Gameplay))
+            .add_system(ground_detection.run_in_state(GameState::Gameplay))
+            //.add_system(
+            //|mut collision_events: EventReader<CollisionEvent>,
+            //mut contact_force_events: EventReader<ContactForceEvent>| {
+            //for collision_event in collision_events.iter() {
+            //println!("Received collision event: {:?}", collision_event);
+            //}
+            //for contact_force_event in contact_force_events.iter() {
+            //println!("Received contact force event: {:?}", contact_force_event);
+            //}
+            //},
+            //)
+            //.add_system(|query: Query<&GroundSensor, Changed<GroundSensor>>| {
+            //query.for_each(|gs| {
+            //dbg!(gs);
+            //});
+            //})
+            .register_ldtk_entity::<PlayerBundle>("Player");
+    }
+}
+
+#[derive(Component, Clone, Eq, PartialEq, Debug)]
 pub struct GroundSensor {
     pub ground_detection_entity: Entity,
     pub intersecting_ground_entities: HashSet<Entity>,
@@ -37,6 +65,7 @@ pub struct ColliderBundle {
     pub rigid_body: RigidBody,
     pub velocity: Velocity,
     pub locked_axes: LockedAxes,
+    pub friction: Friction,
 }
 
 impl From<EntityInstance> for ColliderBundle {
@@ -45,6 +74,16 @@ impl From<EntityInstance> for ColliderBundle {
             "Player" => ColliderBundle {
                 collider: Collider::cuboid(6., 14.),
                 rigid_body: RigidBody::Dynamic,
+                locked_axes: LockedAxes::ROTATION_LOCKED,
+                friction: Friction {
+                    coefficient: 0.1,
+                    combine_rule: CoefficientCombineRule::Multiply,
+                },
+                ..Default::default()
+            },
+            "Platform" => ColliderBundle {
+                collider: Collider::cuboid(8., 8.),
+                rigid_body: RigidBody::KinematicVelocityBased,
                 locked_axes: LockedAxes::ROTATION_LOCKED,
                 ..Default::default()
             },
@@ -68,30 +107,6 @@ pub fn movement(
         } else {
             velocity.linvel.y -= 10.;
         }
-    }
-}
-
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash)]
-pub struct PlayerPlugin;
-
-impl Plugin for PlayerPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_system(movement.run_in_state(GameState::Gameplay))
-            .add_system(spawn_ground_sensor.run_in_state(GameState::Gameplay))
-            .add_system(ground_detection.run_in_state(GameState::Gameplay))
-            .add_system(
-                |mut collision_events: EventReader<CollisionEvent>,
-                 mut contact_force_events: EventReader<ContactForceEvent>| {
-                    for collision_event in collision_events.iter() {
-                        println!("Received collision event: {:?}", collision_event);
-                    }
-
-                    for contact_force_event in contact_force_events.iter() {
-                        println!("Received contact force event: {:?}", contact_force_event);
-                    }
-                },
-            )
-            .register_ldtk_entity::<PlayerBundle>("Player");
     }
 }
 
@@ -129,14 +144,30 @@ pub fn ground_detection(
     for (entity, mut ground_sensor) in ground_sensors.iter_mut() {
         for collision in collisions.iter() {
             match collision {
-                CollisionEvent::Started(sensor, other, _) => {
+                CollisionEvent::Started(a, b, _) => {
+                    let (sensor, other) = if *a == entity {
+                        (a, b)
+                    } else if *b == entity {
+                        (b, a)
+                    } else {
+                        continue;
+                    };
+
                     if collidables.contains(*other) {
                         if *sensor == entity {
                             ground_sensor.intersecting_ground_entities.insert(*other);
                         }
                     }
                 }
-                CollisionEvent::Stopped(sensor, other, _) => {
+                CollisionEvent::Stopped(a, b, _) => {
+                    let (sensor, other) = if *a == entity {
+                        (a, b)
+                    } else if *b == entity {
+                        (b, a)
+                    } else {
+                        continue;
+                    };
+
                     if *sensor == entity {
                         ground_sensor.intersecting_ground_entities.remove(other);
                     }
