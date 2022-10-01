@@ -18,9 +18,9 @@ impl Plugin for HistoryPlugin {
                     .run_on_event::<RewindEvent>()
                     .run_in_state(GameState::Gameplay),
             )
-            .add_system(|time_since_level_start: Res<TimeSinceLevelStart>| {
-                dbg!(time_since_level_start);
-            })
+            //.add_system(|time_since_level_start: Res<TimeSinceLevelStart>| {
+            //dbg!(time_since_level_start);
+            //})
             .add_system(
                 update_time
                     .run_in_state(GameState::Gameplay)
@@ -57,9 +57,9 @@ pub fn rewind(
     mut rewind_event_scheduler: ResMut<EventScheduler<RewindEvent>>,
 ) {
     if input.just_pressed(KeyCode::Z) && time_scale.0 >= 0. {
-        *time_scale = TimeScale(-20.);
+        *time_scale = TimeScale(-10.);
         rewind_event_scheduler.schedule(RewindEvent::Start, Duration::ZERO);
-        rewind_event_scheduler.schedule(RewindEvent::Stop, Duration::from_millis(500));
+        rewind_event_scheduler.schedule(RewindEvent::Stop, Duration::from_millis(1000));
     }
 }
 

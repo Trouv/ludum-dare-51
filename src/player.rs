@@ -13,9 +13,14 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(movement.run_in_state(GameState::Gameplay))
+        app.add_system(movement.run_in_state(GameState::Gameplay).label("movement"))
             .add_system(spawn_ground_sensor.run_in_state(GameState::Gameplay))
             .add_system(ground_detection.run_in_state(GameState::Gameplay))
+            .add_system(
+                move_object_with_ground
+                    .run_in_state(GameState::Gameplay)
+                    .after("movement"),
+            )
             //.add_system(
             //|mut collision_events: EventReader<CollisionEvent>,
             //mut contact_force_events: EventReader<ContactForceEvent>| {
@@ -66,6 +71,7 @@ pub struct ColliderBundle {
     pub velocity: Velocity,
     pub locked_axes: LockedAxes,
     pub friction: Friction,
+    pub restitution: Restitution,
 }
 
 impl From<EntityInstance> for ColliderBundle {
@@ -77,6 +83,10 @@ impl From<EntityInstance> for ColliderBundle {
                 locked_axes: LockedAxes::ROTATION_LOCKED,
                 friction: Friction {
                     coefficient: 0.1,
+                    combine_rule: CoefficientCombineRule::Multiply,
+                },
+                restitution: Restitution {
+                    coefficient: 0.,
                     combine_rule: CoefficientCombineRule::Multiply,
                 },
                 ..Default::default()
@@ -95,17 +105,61 @@ impl From<EntityInstance> for ColliderBundle {
 pub fn movement(
     input: Res<Input<KeyCode>>,
     mut query: Query<(&mut Velocity, &GroundDetection), With<Player>>,
+    time: Res<Time>,
+    mut x_velocity_contribution: Local<f32>,
 ) {
     for (mut velocity, ground_detection) in query.iter_mut() {
         let right = if input.pressed(KeyCode::D) { 1. } else { 0. };
         let left = if input.pressed(KeyCode::A) { 1. } else { 0. };
 
-        velocity.linvel.x = (right - left) * 200.;
+        let max_contribution = 250.;
+        if ground_detection.on_ground {
+            let goal = (right - left) * max_contribution;
+            *x_velocity_contribution +=
+                (goal - *x_velocity_contribution) / 2. * time.delta_seconds() * 70.;
+
+            dbg!(&x_velocity_contribution);
+            velocity.linvel.x = *x_velocity_contribution;
+        } else {
+            let contribution = (right - left) * 1200. * time.delta_seconds();
+
+            if contribution < 0. && velocity.linvel.x > -max_contribution {
+                velocity.linvel.x += contribution;
+            } else if contribution > 0. && velocity.linvel.x < max_contribution {
+                velocity.linvel.x += contribution;
+            }
+
+            *x_velocity_contribution = velocity.linvel.x;
+        }
 
         if input.just_pressed(KeyCode::Space) && (ground_detection.on_ground) {
-            velocity.linvel.y = 450.;
+            velocity.linvel.y = velocity.linvel.y.max(0.) + 400.;
+        } else if input.pressed(KeyCode::Space) {
+            velocity.linvel.y -= 900. * time.delta_seconds();
         } else {
-            velocity.linvel.y -= 10.;
+            velocity.linvel.y -= 1200. * time.delta_seconds();
+        }
+    }
+}
+
+pub fn move_object_with_ground(
+    mut detectors: Query<(Entity, &mut Velocity, &GroundDetection)>,
+    sensors: Query<&GroundSensor>,
+    velocities: Query<&Velocity, Without<GroundDetection>>,
+) {
+    for (detector_entity, mut detect_velocity, detector) in detectors.iter_mut() {
+        if detector.on_ground {
+            if let Some(sensor) = sensors
+                .iter()
+                .find(|s| s.ground_detection_entity == detector_entity)
+            {
+                // what am I standing on?
+                for ground_entity in sensor.intersecting_ground_entities.iter() {
+                    if let Ok(velocity) = velocities.get(*ground_entity) {
+                        detect_velocity.linvel.x += velocity.linvel.x;
+                    }
+                }
+            }
         }
     }
 }
