@@ -4065,7 +4065,18 @@
 			"__smartColor": "#AFE1F1",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "Preamble", "__value": [], "__type": "Array<String>", "__tile": null, "defUid": 41, "realEditorValues": [] }],
+			"fieldInstances": [{ "__identifier": "Preamble", "__value": [
+				"The watch works the other way too.\n\nBut why would you want to fast-forward the end of the world?",
+				"For momentum, of course.\n\nPress X to fast-forward"
+			], "__type": "Array<String>", "__tile": null, "defUid": 41, "realEditorValues": [ {
+				"id": "V_String",
+				"params": [
+					"The watch works the other way too.\n\nBut why would you want to fast-forward the end of the world?"
+				]
+			}, {
+				"id": "V_String",
+				"params": ["For momentum, of course.\n\nPress X to fast-forward"]
+			} ] }],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
