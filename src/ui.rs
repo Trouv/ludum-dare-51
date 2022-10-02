@@ -1,5 +1,6 @@
 use crate::{history::TimeSinceLevelStart, player::Vitality, AssetHolder, GameState};
 use bevy::prelude::*;
+use bevy_ecs_ldtk::prelude::*;
 use iyes_loopless::prelude::*;
 
 pub struct UiPlugin;
@@ -8,6 +9,8 @@ impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_enter_system(GameState::SpawnWorld, spawn_counter)
             .add_system(update_counter.run_in_state(GameState::Gameplay))
+            .add_enter_system(GameState::SpawnWorld, spawn_level_num)
+            .add_system(update_level_num.run_in_state(GameState::Gameplay))
             .add_system(death_screen.run_in_state(GameState::Gameplay));
     }
 }
@@ -54,6 +57,62 @@ fn update_counter(
                 color: Color::BLACK,
             },
         );
+    }
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Component)]
+pub struct LevelNum;
+
+fn spawn_level_num(mut commands: Commands, asset_holder: Res<AssetHolder>) {
+    commands
+        .spawn_bundle(TextBundle {
+            style: Style {
+                position_type: PositionType::Absolute,
+                position: UiRect {
+                    top: Val::Percent(5.),
+                    right: Val::Percent(5.),
+                    ..default()
+                },
+                ..default()
+            },
+            text: Text::from_section(
+                "LevelNum",
+                TextStyle {
+                    font: asset_holder.font.clone(),
+                    font_size: 64.,
+                    color: Color::BLACK,
+                },
+            ),
+            ..default()
+        })
+        .insert(LevelNum);
+}
+
+fn update_level_num(
+    mut query: Query<&mut Text, With<LevelNum>>,
+    asset_holder: Res<AssetHolder>,
+    level_selection: Res<LevelSelection>,
+    mut level_events: EventReader<LevelEvent>,
+    ldtk_assets: Res<Assets<LdtkAsset>>,
+) {
+    for event in level_events.iter() {
+        if let LevelEvent::Transformed(_) = event {
+            for mut text in query.iter_mut() {
+                if let LevelSelection::Index(current_level_num) = *level_selection {
+                    if let Some(ldtk_asset) = ldtk_assets.get(&asset_holder.ldtk) {
+                        let total_levels = ldtk_asset.iter_levels().count();
+                        *text = Text::from_section(
+                            format!("Level {}/{}", current_level_num + 1, total_levels),
+                            TextStyle {
+                                font: asset_holder.font.clone(),
+                                font_size: 64.,
+                                color: Color::BLACK,
+                            },
+                        );
+                    }
+                }
+            }
+        }
     }
 }
 
