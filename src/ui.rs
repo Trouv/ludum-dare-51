@@ -1,4 +1,4 @@
-use crate::{history::TimeSinceLevelStart, AssetHolder, GameState};
+use crate::{history::TimeSinceLevelStart, player::Vitality, AssetHolder, GameState};
 use bevy::prelude::*;
 use iyes_loopless::prelude::*;
 
@@ -7,7 +7,8 @@ pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_enter_system(GameState::SpawnWorld, spawn_counter)
-            .add_system(update_counter.run_in_state(GameState::Gameplay));
+            .add_system(update_counter.run_in_state(GameState::Gameplay))
+            .add_system(death_screen.run_in_state(GameState::Gameplay));
     }
 }
 
@@ -53,5 +54,52 @@ fn update_counter(
                 color: Color::BLACK,
             },
         );
+    }
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Component)]
+struct DeathScreen;
+
+fn death_screen(
+    mut commands: Commands,
+    vitals: Query<&Vitality, Changed<Vitality>>,
+    existing_death_screens: Query<Entity, With<DeathScreen>>,
+    asset_holder: Res<AssetHolder>,
+) {
+    for changed_vitality in vitals.iter() {
+        for entity in existing_death_screens.iter() {
+            commands.entity(entity).despawn_recursive();
+        }
+
+        if *changed_vitality == Vitality::Dead {
+            commands
+                .spawn_bundle(NodeBundle {
+                    style: Style {
+                        size: Size {
+                            width: Val::Percent(100.),
+                            height: Val::Percent(100.),
+                        },
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    color: UiColor(Color::rgba(0., 0., 0., 0.8)),
+                    ..default()
+                })
+                .insert(DeathScreen)
+                .with_children(|builder| {
+                    builder.spawn_bundle(TextBundle {
+                        text: Text::from_section(
+                            "DEAD\n\nPress R to restart..",
+                            TextStyle {
+                                font: asset_holder.font.clone(),
+                                font_size: 128.,
+                                color: Color::WHITE,
+                            },
+                        ),
+                        ..default()
+                    });
+                });
+        }
     }
 }
