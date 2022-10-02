@@ -85,4 +85,6 @@ struct AssetHolder {
     pub font: Handle<Font>,
     #[asset(path = "apophis.png")]
     pub apophis: Handle<Image>,
+    #[asset(path = "background.png")]
+    pub background: Handle<Image>,
 }

@@ -24,6 +24,7 @@ fn spawn_first_level(
     if query.is_empty() {
         commands.spawn_bundle(LdtkWorldBundle {
             ldtk_handle: asset_holder.ldtk.clone(),
+            transform: Transform::from_xyz(0., 0., 2.),
             ..default()
         });
     }

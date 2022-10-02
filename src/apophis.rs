@@ -39,6 +39,17 @@ fn spawn_apophis(
             repeat: true,
         })
         .insert(Apophis);
+
+    // spawn background
+    commands.spawn_bundle(SpriteBundle {
+        sprite: Sprite {
+            color: Color::rgba(1., 1., 1., 0.7),
+            ..default()
+        },
+        texture: asset_holder.background.clone(),
+        transform: Transform::from_xyz(960., 540., 0.).with_scale(Vec3::new(1.5, 1.5, 1.)),
+        ..default()
+    });
 }
 
 fn update_apophis_by_time(
@@ -46,8 +57,8 @@ fn update_apophis_by_time(
     mut query: Query<&mut Transform, With<Apophis>>,
 ) {
     for mut transform in query.iter_mut() {
-        let start_translation = Vec3::new(900., 900., 0.);
-        let final_translation = Vec3::new(500., 500., 0.);
+        let start_translation = Vec3::new(900., 900., 1.);
+        let final_translation = Vec3::new(500., 500., 1.);
 
         let start_scale = Vec3::new(2., 2., 1.);
         let final_scale = Vec3::new(4., 4., 1.);
