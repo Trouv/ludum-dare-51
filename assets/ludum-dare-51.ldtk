@@ -3296,9 +3296,9 @@
 			"__smartColor": "#AFE1F1",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [{ "__identifier": "Preamble", "__value": ["It's all about momentum."], "__type": "Array<String>", "__tile": null, "defUid": 41, "realEditorValues": [{
+			"fieldInstances": [{ "__identifier": "Preamble", "__value": ["It's all about momentum.\n\nTry jumping before the apex of the rewind."], "__type": "Array<String>", "__tile": null, "defUid": 41, "realEditorValues": [{
 				"id": "V_String",
-				"params": ["It's all about momentum."]
+				"params": ["It's all about momentum.\n\nTry jumping before the apex of the rewind."]
 			}] }],
 			"layerInstances": [
 				{
