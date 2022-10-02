@@ -75,18 +75,26 @@ fn spawn_apophis(
 fn update_apophis_by_time(
     time_since_level_start: Res<TimeSinceLevelStart>,
     mut query: Query<&mut Transform, With<Apophis>>,
+    mut clear_color: ResMut<ClearColor>,
 ) {
     for mut transform in query.iter_mut() {
+        let lerp_value = time_since_level_start.0 / 10.;
+
         let start_translation = Vec3::new(1200., 800., 1.);
         let final_translation = Vec3::new(800., 400., 1.);
 
         let start_scale = Vec3::new(2., 2., 1.);
         let final_scale = Vec3::new(4., 4., 1.);
-        let lerp_value = time_since_level_start.0 / 10.;
 
         *transform =
             Transform::from_translation(start_translation.lerp(final_translation, lerp_value))
                 .with_scale(start_scale.lerp(final_scale, lerp_value));
+
+        let start_clear_color = Color::hex("6DC8E5").unwrap();
+        let final_clear_color = Color::hex("8f5c00").unwrap();
+
+        *clear_color =
+            ClearColor(start_clear_color * (1. - lerp_value) + final_clear_color * lerp_value);
     }
 }
 

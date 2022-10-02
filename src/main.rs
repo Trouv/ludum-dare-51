@@ -41,10 +41,10 @@ fn main() {
         .insert_resource(ImageSettings::default_nearest())
         .add_plugins(DefaultPlugins)
         .insert_resource(Msaa { samples: 1 })
+        .insert_resource(ClearColor(Color::BLACK))
         .add_plugin(AudioPlugin)
         .add_plugin(LdtkPlugin)
         .insert_resource(LdtkSettings {
-            set_clear_color: SetClearColor::FromLevelBackground,
             level_background: LevelBackground::Nonexistent,
             int_grid_rendering: IntGridRendering::Colorful,
             ..default()
