@@ -1,4 +1,9 @@
-use crate::{history::TimeSinceLevelStart, player::Vitality, AssetHolder, GameState};
+use crate::{
+    history::TimeSinceLevelStart,
+    player::Vitality,
+    previous_component::{PreviousComponent, PreviousComponentPlugin, TrackPreviousComponent},
+    AssetHolder, GameState,
+};
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use iyes_loopless::prelude::*;
@@ -8,11 +13,18 @@ pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_enter_system(GameState::SpawnWorld, spawn_counter)
+            .add_plugin(PreviousComponentPlugin::<Interaction>::default())
+            .add_event::<UiAction>()
             .add_system(update_counter.run_in_state(GameState::Gameplay))
             .add_enter_system(GameState::SpawnWorld, spawn_level_num)
             .add_system(update_level_num.run_in_state(GameState::Gameplay))
             .add_system(update_level_num.run_in_state(GameState::Preamble))
-            .add_system(death_screen.run_in_state(GameState::Gameplay));
+            .add_system(death_screen.run_in_state(GameState::Gameplay))
+            .add_system(
+                ui_action
+                    .run_not_in_state(GameState::AssetLoading)
+                    .after(TrackPreviousComponent),
+            );
     }
 }
 
@@ -161,6 +173,33 @@ fn death_screen(
                         ..default()
                     });
                 });
+        }
+    }
+}
+
+/// All possible actions that can be triggered by the UI.
+///
+/// This acts as both a component and an event.
+/// Insert it on a button to define what action that button performs.
+/// Then, when that button is pressed, an event of the same value will be fired.
+#[allow(dead_code)]
+#[derive(Clone, Eq, PartialEq, Debug, Component)]
+pub enum UiAction {
+    Debug(&'static str),
+    SelectLevel(usize),
+}
+
+/// System that detects button presses and fires [UiAction]s.
+pub(super) fn ui_action(
+    actions: Query<
+        (&UiAction, &Interaction, &PreviousComponent<Interaction>),
+        Changed<Interaction>,
+    >,
+    mut event_writer: EventWriter<UiAction>,
+) {
+    for (action, interaction, previous) in actions.iter() {
+        if (Interaction::Hovered, Interaction::Clicked) == (*interaction, *previous.get()) {
+            event_writer.send(action.clone())
         }
     }
 }

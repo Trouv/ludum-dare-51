@@ -6,8 +6,10 @@ mod goals;
 mod history;
 mod level_transition;
 mod music;
+mod pause;
 mod platform;
 mod player;
+mod previous_component;
 mod ui;
 mod wall;
 
@@ -61,6 +63,7 @@ fn main() {
         .add_plugin(goals::GoalPlugin)
         .add_plugin(music::MusicPlugin)
         .add_plugin(ui::UiPlugin)
+        .add_plugin(pause::PausePlugin)
         .insert_resource(LevelSelection::Index(0))
         .run();
 }
