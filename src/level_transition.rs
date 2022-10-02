@@ -131,7 +131,7 @@ fn update_preamble_card(
                     if let LevelSelection::Index(level_num) = *level_selection {
                         let preamble = match preambles.get(index.0) {
                             Some(Some(s)) => s.clone(),
-                            _ => format!("#{}", level_num),
+                            _ => format!("#{}", level_num + 1),
                         };
 
                         *text = Text::from_section(

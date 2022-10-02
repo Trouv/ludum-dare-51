@@ -1,4 +1,5 @@
 mod animation;
+mod apophis;
 mod camera;
 mod event_scheduler;
 mod from_component;
@@ -23,7 +24,6 @@ use iyes_loopless::prelude::*;
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 enum GameState {
     AssetLoading,
-    MainMenu,
     SpawnWorld,
     Gameplay,
     Preamble,
@@ -44,6 +44,8 @@ fn main() {
         .add_plugin(AudioPlugin)
         .add_plugin(LdtkPlugin)
         .insert_resource(LdtkSettings {
+            set_clear_color: SetClearColor::FromLevelBackground,
+            level_background: LevelBackground::Nonexistent,
             int_grid_rendering: IntGridRendering::Colorful,
             ..default()
         })
@@ -64,6 +66,7 @@ fn main() {
         .add_plugin(music::MusicPlugin)
         .add_plugin(ui::UiPlugin)
         .add_plugin(pause::PausePlugin)
+        .add_plugin(apophis::ApophisPlugin)
         .insert_resource(LevelSelection::Index(0))
         .run();
 }
@@ -80,4 +83,6 @@ struct AssetHolder {
     pub death: Handle<bevy_kira_audio::prelude::AudioSource>,
     #[asset(path = "Carnevalee Freakshow.ttf")]
     pub font: Handle<Font>,
+    #[asset(path = "apophis.png")]
+    pub apophis: Handle<Image>,
 }
