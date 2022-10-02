@@ -24,7 +24,6 @@ enum GameState {
     MainMenu,
     SpawnWorld,
     Gameplay,
-    Dead,
     PauseMenu,
 }
 

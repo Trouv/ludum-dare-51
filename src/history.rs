@@ -1,6 +1,6 @@
-use crate::GameState;
+use crate::{player::Vitality, GameState};
 use bevy::prelude::*;
-use bevy_ecs_ldtk::LevelEvent;
+use bevy_ecs_ldtk::{LdtkLevel, LevelEvent, Respawn};
 use iyes_loopless::prelude::*;
 use std::time::Duration;
 
@@ -55,18 +55,29 @@ pub enum TimeEvent {
 }
 
 pub fn rewind(
+    mut commands: Commands,
     input: Res<Input<KeyCode>>,
     mut time_scale: ResMut<TimeScale>,
     mut rewind_event_scheduler: ResMut<EventScheduler<TimeEvent>>,
+    vitality: Query<&Vitality>,
+    levels: Query<Entity, With<Handle<LdtkLevel>>>,
 ) {
-    if input.just_pressed(KeyCode::Z) && time_scale.0 == 1. {
+    if input.just_pressed(KeyCode::Z) && time_scale.0 == 1. && *vitality.single() == Vitality::Alive
+    {
         *time_scale = TimeScale(-10.);
         rewind_event_scheduler.schedule(TimeEvent::Rewind, Duration::ZERO);
         rewind_event_scheduler.schedule(TimeEvent::Normal, Duration::from_millis(200));
-    } else if input.just_pressed(KeyCode::X) && time_scale.0 == 1. {
+    } else if input.just_pressed(KeyCode::X)
+        && time_scale.0 == 1.
+        && *vitality.single() == Vitality::Alive
+    {
         *time_scale = TimeScale(10.);
         rewind_event_scheduler.schedule(TimeEvent::FastForward, Duration::ZERO);
         rewind_event_scheduler.schedule(TimeEvent::Normal, Duration::from_millis(200));
+    }
+
+    if input.just_pressed(KeyCode::R) {
+        commands.entity(levels.single()).insert(Respawn);
     }
 }
 
@@ -87,12 +98,16 @@ pub fn update_time(
     bevy_time: Res<Time>,
     mut level_events: EventReader<LevelEvent>,
     mut time_events: EventWriter<TimeEvent>,
+    mut vitals: Query<&mut Vitality>,
 ) {
     for event in level_events.iter() {
         if let LevelEvent::Transformed(_) = event {
             time_scale.0 = 1.;
             time_since_level_start.0 = 0.;
             time_events.send(TimeEvent::Normal);
+            for mut vitality in vitals.iter_mut() {
+                *vitality = Vitality::Alive;
+            }
         }
     }
 
@@ -105,5 +120,8 @@ pub fn update_time(
     if time_since_level_start.0 > 10. {
         time_since_level_start.0 = 10.;
         time_scale.0 = 0.;
+        for mut vitality in vitals.iter_mut() {
+            *vitality = Vitality::Dead;
+        }
     }
 }

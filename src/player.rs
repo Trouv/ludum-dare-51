@@ -11,6 +11,13 @@ pub struct Player;
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash)]
 pub struct PlayerPlugin;
 
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Component)]
+pub enum Vitality {
+    #[default]
+    Alive,
+    Dead,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Component, Default)]
 pub enum PlayerAnimationState {
     #[default]
@@ -53,6 +60,7 @@ impl Plugin for PlayerPlugin {
                     .run_in_state(GameState::Gameplay)
                     .after("movement"),
             )
+            .add_system(kill_out_of_bounds_player.run_in_state(GameState::Gameplay))
             //.add_system(
             //|mut collision_events: EventReader<CollisionEvent>,
             //mut contact_force_events: EventReader<ContactForceEvent>| {
@@ -95,6 +103,7 @@ pub struct PlayerBundle {
     pub player: Player,
     pub ground_detection: GroundDetection,
     pub animation: PlayerAnimationState,
+    pub vitality: Vitality,
 }
 
 #[derive(Clone, Debug, Default, Bundle, LdtkIntCell)]
@@ -151,19 +160,26 @@ pub fn movement(
             &mut PlayerAnimationState,
             &mut TextureAtlasSprite,
             &GroundDetection,
+            &Vitality,
         ),
         With<Player>,
     >,
     time: Res<Time>,
     mut x_velocity_contribution: Local<f32>,
 ) {
-    for (mut velocity, mut animation_state, mut sprite, ground_detection) in query.iter_mut() {
-        let right = if input.pressed(KeyCode::D) || input.pressed(KeyCode::Right) {
+    for (mut velocity, mut animation_state, mut sprite, ground_detection, vitality) in
+        query.iter_mut()
+    {
+        let right = if *vitality == Vitality::Alive
+            && (input.pressed(KeyCode::D) || input.pressed(KeyCode::Right))
+        {
             1.
         } else {
             0.
         };
-        let left = if input.pressed(KeyCode::A) || input.pressed(KeyCode::Left) {
+        let left = if *vitality == Vitality::Alive
+            && (input.pressed(KeyCode::A) || input.pressed(KeyCode::Left))
+        {
             1.
         } else {
             0.
@@ -207,9 +223,12 @@ pub fn movement(
             *x_velocity_contribution = velocity.linvel.x;
         }
 
-        if input.just_pressed(KeyCode::Space) && (ground_detection.on_ground) {
+        if input.just_pressed(KeyCode::Space)
+            && (ground_detection.on_ground)
+            && *vitality == Vitality::Alive
+        {
             velocity.linvel.y = velocity.linvel.y.max(0.) + 400.;
-        } else if input.pressed(KeyCode::Space) {
+        } else if input.pressed(KeyCode::Space) && *vitality == Vitality::Alive {
             velocity.linvel.y -= 900. * time.delta_seconds();
         } else {
             velocity.linvel.y -= 1200. * time.delta_seconds();
@@ -308,6 +327,28 @@ pub fn ground_detection(
             ground_detectors.get_mut(ground_sensor.ground_detection_entity)
         {
             ground_detection.on_ground = ground_sensor.intersecting_ground_entities.len() > 0;
+        }
+    }
+}
+
+pub fn kill_out_of_bounds_player(
+    ldtk_levels: Res<Assets<LdtkLevel>>,
+    level_entities: Query<&Handle<LdtkLevel>>,
+    mut vitals: Query<(&Transform, &mut Vitality)>,
+) {
+    for (transform, mut vitality) in vitals.iter_mut() {
+        let bottom_bound = 0.;
+        let left_bound = 0.;
+        let right_bound = ldtk_levels
+            .get(level_entities.single())
+            .unwrap()
+            .level
+            .px_wid as f32;
+
+        let translation = transform.translation;
+        if translation.x > right_bound || translation.x < left_bound || translation.y < bottom_bound
+        {
+            *vitality = Vitality::Dead;
         }
     }
 }
