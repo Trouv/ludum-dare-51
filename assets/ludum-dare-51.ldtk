@@ -2520,7 +2520,7 @@
 									"id": "V_String",
 									"params": ["29,17"]
 								}] },
-								{ "__identifier": "Speed", "__value": 30, "__type": "Float", "__tile": null, "defUid": 6, "realEditorValues": [{ "id": "V_Float", "params": [30] }] }
+								{ "__identifier": "Speed", "__value": 40, "__type": "Float", "__tile": null, "defUid": 6, "realEditorValues": [{ "id": "V_Float", "params": [40] }] }
 							]
 						}
 					]
