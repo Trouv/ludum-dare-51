@@ -13,9 +13,12 @@ impl Plugin for PlatformPlugin {
     fn build(&self, app: &mut App) {
         app.register_ldtk_entity::<PlatformBundle>("Platform")
             .add_system(
-                |query: Query<&History<PlatformMoment>, Changed<History<PlatformMoment>>>| {
-                    query.for_each(|x| {
-                        dbg!(x.moments.len());
+                |query: Query<
+                    (&History<PlatformMoment>, &Path),
+                    Changed<History<PlatformMoment>>,
+                >| {
+                    query.for_each(|(x, path)| {
+                        dbg!(x.moments.len(), path.index);
                     });
                 },
             )
@@ -135,7 +138,25 @@ fn platform_movement(
                 .normalize()
                 * path.speed;
 
-            if new_velocity.dot(velocity.linvel) <= 0. || history.moments.is_empty() {
+            let goal_passed = match history.moments.last() {
+                Some(Moment {
+                    data:
+                        PlatformMoment::ChangeDirection {
+                            velocity: goal_velocity,
+                            ..
+                        },
+                    ..
+                }) => {
+                    if new_velocity.dot(*goal_velocity) < 0. {
+                        true
+                    } else {
+                        false
+                    }
+                }
+                None => true,
+            };
+
+            if goal_passed {
                 // passed it!
                 path.index = (path.index + 1) % path.points.len();
                 let goal_position = path.points[path.index];
