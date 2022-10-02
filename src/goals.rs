@@ -40,6 +40,7 @@ impl From<Goal> for SpriteSheetAnimation {
 }
 
 fn victory(
+    mut commands: Commands,
     player_query: Query<Entity, With<Player>>,
     goal_query: Query<Entity, With<Goal>>,
     mut collision_events: EventReader<CollisionEvent>,
@@ -53,6 +54,7 @@ fn victory(
                 {
                     if let LevelSelection::Index(level_index) = *level_selection {
                         *level_selection = LevelSelection::Index(level_index + 1);
+                        commands.insert_resource(NextState(GameState::Preamble));
                     }
                 }
             }

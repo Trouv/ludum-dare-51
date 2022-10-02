@@ -10,7 +10,7 @@
 	},
 	"jsonVersion": "1.1.3",
 	"appBuildId": 462122,
-	"nextUid": 41,
+	"nextUid": 42,
 	"identifierStyle": "Capitalize",
 	"worldLayout": "LinearHorizontal",
 	"worldGridWidth": 256,
@@ -733,7 +733,37 @@
 				"averageColors": "f757f757f757f757f657f657f657f657f657f657f657f657f447f757f657fa3300001d9697b447b5000000000000000000000000000000000000000000000000400040004000000067b447b526b317b500000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000384838483748384838483848000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
 			}
 		}
-	], "enums": [], "externalEnums": [], "levelFields": [] },
+	], "enums": [], "externalEnums": [], "levelFields": [
+		{
+			"identifier": "Preamble",
+			"__type": "Array<String>",
+			"uid": 41,
+			"type": "F_Text",
+			"isArray": true,
+			"canBeNull": false,
+			"arrayMinLength": null,
+			"arrayMaxLength": null,
+			"editorDisplayMode": "Hidden",
+			"editorDisplayPos": "Above",
+			"editorAlwaysShow": false,
+			"editorCutLongValues": true,
+			"editorTextSuffix": null,
+			"editorTextPrefix": null,
+			"useForSmartColor": false,
+			"min": null,
+			"max": null,
+			"regex": null,
+			"acceptFileTypes": null,
+			"defaultOverride": null,
+			"textLanguageMode": null,
+			"symmetricalRef": false,
+			"autoChainRef": true,
+			"allowOutOfLevelRef": true,
+			"allowedRefs": "OnlySame",
+			"allowedRefTags": [],
+			"tilesetUid": null
+		}
+	] },
 	"levels": [
 		{
 			"identifier": "Level_0",
@@ -754,7 +784,10 @@
 			"__smartColor": "#AFE1F1",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [],
+			"fieldInstances": [{ "__identifier": "Preamble", "__value": ["Preamble"], "__type": "Array<String>", "__tile": null, "defUid": 41, "realEditorValues": [{
+				"id": "V_String",
+				"params": ["Preamble"]
+			}] }],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",
@@ -1167,7 +1200,13 @@
 			"__smartColor": "#AFE1F1",
 			"__bgPos": null,
 			"externalRelPath": null,
-			"fieldInstances": [],
+			"fieldInstances": [{ "__identifier": "Preamble", "__value": [ "Preamble\n\nTest 1", "Preamble\n\nTest 2" ], "__type": "Array<String>", "__tile": null, "defUid": 41, "realEditorValues": [ {
+				"id": "V_String",
+				"params": ["Preamble\n\nTest 1"]
+			}, {
+				"id": "V_String",
+				"params": ["Preamble\n\nTest 2"]
+			} ] }],
 			"layerInstances": [
 				{
 					"__identifier": "Entities",

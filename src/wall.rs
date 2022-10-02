@@ -23,6 +23,11 @@ impl Plugin for WallPlugin {
                 .run_in_state(GameState::Gameplay)
                 .run_on_event::<LevelEvent>(),
         )
+        .add_system(
+            spawn_wall_collision
+                .run_in_state(GameState::Preamble)
+                .run_on_event::<LevelEvent>(),
+        )
         .register_ldtk_int_cell::<WallBundle>(1);
     }
 }

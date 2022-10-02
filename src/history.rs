@@ -1,6 +1,6 @@
-use crate::{player::Vitality, GameState};
+use crate::{level_transition::LevelStart, player::Vitality, GameState};
 use bevy::prelude::*;
-use bevy_ecs_ldtk::{LdtkLevel, LevelEvent, Respawn};
+use bevy_ecs_ldtk::{LdtkLevel, Respawn};
 use iyes_loopless::prelude::*;
 use std::time::Duration;
 
@@ -96,18 +96,16 @@ pub fn update_time(
     mut time_scale: ResMut<TimeScale>,
     mut time_since_level_start: ResMut<TimeSinceLevelStart>,
     bevy_time: Res<Time>,
-    mut level_events: EventReader<LevelEvent>,
+    mut level_events: EventReader<LevelStart>,
     mut time_events: EventWriter<TimeEvent>,
     mut vitals: Query<&mut Vitality>,
 ) {
-    for event in level_events.iter() {
-        if let LevelEvent::Transformed(_) = event {
-            time_scale.0 = 1.;
-            time_since_level_start.0 = 0.;
-            time_events.send(TimeEvent::Normal);
-            for mut vitality in vitals.iter_mut() {
-                *vitality = Vitality::Alive;
-            }
+    for _ in level_events.iter() {
+        time_scale.0 = 1.;
+        time_since_level_start.0 = 0.;
+        time_events.send(TimeEvent::Normal);
+        for mut vitality in vitals.iter_mut() {
+            *vitality = Vitality::Alive;
         }
     }
 
