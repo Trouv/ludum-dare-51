@@ -354,7 +354,9 @@ pub fn kill_out_of_bounds_player(
         let translation = transform.translation;
         if translation.x > right_bound || translation.x < left_bound || translation.y < bottom_bound
         {
-            *vitality = Vitality::Dead;
+            if *vitality != Vitality::Dead {
+                *vitality = Vitality::Dead;
+            }
         }
     }
 }

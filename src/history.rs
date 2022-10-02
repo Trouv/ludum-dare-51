@@ -61,6 +61,7 @@ pub fn rewind(
     mut rewind_event_scheduler: ResMut<EventScheduler<TimeEvent>>,
     vitality: Query<&Vitality>,
     levels: Query<Entity, With<Handle<LdtkLevel>>>,
+    mut level_start_events: EventWriter<LevelStart>,
 ) {
     if input.just_pressed(KeyCode::Z) && time_scale.0 == 1. && *vitality.single() == Vitality::Alive
     {
@@ -78,6 +79,7 @@ pub fn rewind(
 
     if input.just_pressed(KeyCode::R) {
         commands.entity(levels.single()).insert(Respawn);
+        level_start_events.send(LevelStart);
     }
 }
 
