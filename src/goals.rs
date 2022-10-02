@@ -41,7 +41,7 @@ impl From<Goal> for SpriteSheetAnimation {
 
 fn victory(
     mut commands: Commands,
-    player_query: Query<Entity, With<Player>>,
+    player_query: Query<&Vitality, With<Player>>,
     goal_query: Query<Entity, With<Goal>>,
     mut collision_events: EventReader<CollisionEvent>,
     mut level_selection: ResMut<LevelSelection>,
@@ -52,9 +52,11 @@ fn victory(
                 if player_query.contains(*a) && goal_query.contains(*b)
                     || player_query.contains(*b) && goal_query.contains(*a)
                 {
-                    if let LevelSelection::Index(level_index) = *level_selection {
-                        *level_selection = LevelSelection::Index(level_index + 1);
-                        commands.insert_resource(NextState(GameState::Preamble));
+                    if *player_query.single() == Vitality::Alive {
+                        if let LevelSelection::Index(level_index) = *level_selection {
+                            *level_selection = LevelSelection::Index(level_index + 1);
+                            commands.insert_resource(NextState(GameState::Preamble));
+                        }
                     }
                 }
             }
