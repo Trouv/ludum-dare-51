@@ -24,6 +24,7 @@ pub enum PlayerAnimationState {
     Idle,
     Running,
     Falling,
+    Dead,
 }
 
 impl From<PlayerAnimationState> for SpriteSheetAnimation {
@@ -32,6 +33,7 @@ impl From<PlayerAnimationState> for SpriteSheetAnimation {
             PlayerAnimationState::Idle => 0..1,
             PlayerAnimationState::Running => 4..8,
             PlayerAnimationState::Falling => 8..9,
+            PlayerAnimationState::Dead => 12..13,
         };
 
         let frame_timer = Timer::from_seconds(0.2, true);
@@ -232,6 +234,10 @@ pub fn movement(
             velocity.linvel.y -= 900. * time.delta_seconds();
         } else {
             velocity.linvel.y -= 1200. * time.delta_seconds();
+        }
+
+        if *vitality == Vitality::Dead {
+            *animation_state = PlayerAnimationState::Dead;
         }
     }
 }

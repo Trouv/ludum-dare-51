@@ -694,13 +694,13 @@
 	], "tilesets": [
 		{
 			"__cWid": 4,
-			"__cHei": 3,
+			"__cHei": 4,
 			"identifier": "Tileset",
 			"uid": 7,
 			"relPath": "malcolm.png",
 			"embedAtlas": null,
 			"pxWid": 256,
-			"pxHei": 192,
+			"pxHei": 256,
 			"tileGridSize": 64,
 			"spacing": 0,
 			"padding": 0,
@@ -709,7 +709,7 @@
 			"enumTags": [],
 			"customData": [],
 			"savedSelections": [],
-			"cachedPixelData": { "opaqueTiles": "000000000000", "averageColors": "5a950000000000005a944a944a954a945ba5000000000000" }
+			"cachedPixelData": { "opaqueTiles": "0000000000000000", "averageColors": "5a950000000000005a944a944a954a945ba50000000000003aa5000000000000" }
 		},
 		{
 			"__cWid": 18,
