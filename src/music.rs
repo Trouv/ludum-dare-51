@@ -32,7 +32,7 @@ fn play_music(
             .start_from(time_since_level_start.0 as f64 % 10.)
             .with_playback_rate((time_scale.0.abs()).sqrt().sqrt() as f64)
             .looped()
-            .with_volume(0.3);
+            .with_volume(0.2);
 
         if time_scale.0 < 0. {
             audio_commands.reverse();

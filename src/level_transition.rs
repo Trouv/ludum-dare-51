@@ -39,7 +39,18 @@ pub struct PreambleCard;
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Hash, Component)]
 pub struct PreambleText(usize);
 
-fn spawn_preamble_card(mut commands: Commands, asset_holder: Res<AssetHolder>) {
+fn spawn_preamble_card(
+    mut commands: Commands,
+    asset_holder: Res<AssetHolder>,
+    ldtk_assets: Res<Assets<LdtkAsset>>,
+    level_selection: Res<LevelSelection>,
+) {
+    let final_card = ldtk_assets
+        .get(&asset_holder.ldtk)
+        .map(|l| l.get_level(&level_selection))
+        .flatten()
+        .is_none();
+
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
@@ -57,10 +68,16 @@ fn spawn_preamble_card(mut commands: Commands, asset_holder: Res<AssetHolder>) {
         })
         .insert(PreambleCard)
         .with_children(|builder| {
+            let text = if final_card {
+                "Malcolm escaped earth!\n\nThank you for playing\n\nMade by Trouv"
+            } else {
+                ""
+            };
+
             builder
                 .spawn_bundle(TextBundle {
                     text: Text::from_section(
-                        "",
+                        text,
                         TextStyle {
                             font: asset_holder.font.clone(),
                             font_size: 64.,
@@ -71,26 +88,28 @@ fn spawn_preamble_card(mut commands: Commands, asset_holder: Res<AssetHolder>) {
                 })
                 .insert(PreambleText(0));
 
-            builder.spawn_bundle(TextBundle {
-                text: Text::from_section(
-                    "Press ENTER to continue..",
-                    TextStyle {
-                        font: asset_holder.font.clone(),
-                        font_size: 64.,
-                        color: Color::WHITE,
-                    },
-                ),
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    position: UiRect {
-                        bottom: Val::Percent(5.),
-                        right: Val::Percent(5.),
+            if !final_card {
+                builder.spawn_bundle(TextBundle {
+                    text: Text::from_section(
+                        "Press ENTER to continue..",
+                        TextStyle {
+                            font: asset_holder.font.clone(),
+                            font_size: 64.,
+                            color: Color::WHITE,
+                        },
+                    ),
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        position: UiRect {
+                            bottom: Val::Percent(5.),
+                            right: Val::Percent(5.),
+                            ..default()
+                        },
                         ..default()
                     },
                     ..default()
-                },
-                ..default()
-            });
+                });
+            }
         });
 }
 

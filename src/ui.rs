@@ -11,6 +11,7 @@ impl Plugin for UiPlugin {
             .add_system(update_counter.run_in_state(GameState::Gameplay))
             .add_enter_system(GameState::SpawnWorld, spawn_level_num)
             .add_system(update_level_num.run_in_state(GameState::Gameplay))
+            .add_system(update_level_num.run_in_state(GameState::Preamble))
             .add_system(death_screen.run_in_state(GameState::Gameplay));
     }
 }
