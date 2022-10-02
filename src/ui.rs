@@ -81,6 +81,7 @@ fn death_screen(
                         },
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
+                        align_content: AlignContent::Center,
                         ..default()
                     },
                     color: UiColor(Color::rgba(0., 0., 0., 0.8)),

@@ -29,11 +29,11 @@ pub fn camera_fit_inside_current_level(
     >,
     player_query: Query<&Transform, With<Player>>,
     level_query: Query<
-        (&Transform, &Handle<LdtkLevel>),
+        (&Transform, &Handle<LdtkAsset>),
         (Without<OrthographicProjection>, Without<Player>),
     >,
     level_selection: Res<LevelSelection>,
-    ldtk_levels: Res<Assets<LdtkLevel>>,
+    ldtk_levels: Res<Assets<LdtkAsset>>,
 ) {
     if let Ok(Transform {
         translation: player_translation,
@@ -45,10 +45,9 @@ pub fn camera_fit_inside_current_level(
         let (mut orthographic_projection, mut camera_transform) = camera_query.single_mut();
 
         for (level_transform, level_handle) in level_query.iter() {
-            if let Some(ldtk_level) = ldtk_levels.get(level_handle) {
-                let level = &ldtk_level.level;
-                if level_selection.is_match(&0, level) {
-                    let level_ratio = level.px_wid as f32 / ldtk_level.level.px_hei as f32;
+            if let Some(ldtk_asset) = ldtk_levels.get(level_handle) {
+                if let Some(level) = ldtk_asset.get_level(&level_selection) {
+                    let level_ratio = level.px_wid as f32 / level.px_hei as f32;
 
                     orthographic_projection.scaling_mode = bevy::render::camera::ScalingMode::None;
                     orthographic_projection.bottom = 0.;
