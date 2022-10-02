@@ -52,7 +52,11 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(movement.run_in_state(GameState::Gameplay).label("movement"))
             .add_system(spawn_ground_sensor.run_in_state(GameState::Gameplay))
-            .add_system(ground_detection.run_in_state(GameState::Gameplay))
+            .add_system(
+                ground_detection
+                    .run_in_state(GameState::Gameplay)
+                    .before("movement"),
+            )
             .add_plugin(FromComponentPlugin::<
                 PlayerAnimationState,
                 SpriteSheetAnimation,
