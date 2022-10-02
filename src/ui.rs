@@ -6,7 +6,7 @@ pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_enter_system(GameState::Gameplay, spawn_counter)
+        app.add_enter_system(GameState::SpawnWorld, spawn_counter)
             .add_system(update_counter.run_in_state(GameState::Gameplay));
     }
 }

@@ -12,16 +12,16 @@ pub struct PlatformPlugin;
 impl Plugin for PlatformPlugin {
     fn build(&self, app: &mut App) {
         app.register_ldtk_entity::<PlatformBundle>("Platform")
-            .add_system(
-                |query: Query<
-                    (&History<PlatformMoment>, &Path),
-                    Changed<History<PlatformMoment>>,
-                >| {
-                    query.for_each(|(x, path)| {
-                        dbg!(x.moments.len(), path.index);
-                    });
-                },
-            )
+            //.add_system(
+            //|query: Query<
+            //(&History<PlatformMoment>, &Path),
+            //Changed<History<PlatformMoment>>,
+            //>| {
+            //query.for_each(|(x, path)| {
+            //dbg!(x.moments.len(), path.index);
+            //});
+            //},
+            //)
             .add_system(
                 platform_movement
                     .run_in_state(GameState::Gameplay)

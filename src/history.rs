@@ -1,5 +1,6 @@
 use crate::GameState;
 use bevy::prelude::*;
+use bevy_ecs_ldtk::LevelEvent;
 use iyes_loopless::prelude::*;
 use std::time::Duration;
 
@@ -16,7 +17,8 @@ impl Plugin for HistoryPlugin {
             .add_system(
                 stop_rewind
                     .run_on_event::<TimeEvent>()
-                    .run_in_state(GameState::Gameplay),
+                    .run_in_state(GameState::Gameplay)
+                    .label("update_time"),
             )
             //.add_system(|time_since_level_start: Res<TimeSinceLevelStart>| {
             //dbg!(time_since_level_start);
@@ -83,7 +85,17 @@ pub fn update_time(
     mut time_scale: ResMut<TimeScale>,
     mut time_since_level_start: ResMut<TimeSinceLevelStart>,
     bevy_time: Res<Time>,
+    mut level_events: EventReader<LevelEvent>,
+    mut time_events: EventWriter<TimeEvent>,
 ) {
+    for event in level_events.iter() {
+        if let LevelEvent::Transformed(_) = event {
+            time_scale.0 = 1.;
+            time_since_level_start.0 = 0.;
+            time_events.send(TimeEvent::Normal);
+        }
+    }
+
     time_since_level_start.0 = time_since_level_start.0 + bevy_time.delta_seconds() * time_scale.0;
 
     if time_since_level_start.0 < 0. {

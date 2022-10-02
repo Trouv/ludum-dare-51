@@ -1209,7 +1209,7 @@
 						},
 						{
 							"__identifier": "Platform",
-							"__grid": [19,23],
+							"__grid": [19,25],
 							"__pivot": [0.5,0.5],
 							"__tags": [],
 							"__tile": { "tilesetUid": 8, "x": 480, "y": 0, "w": 32, "h": 32 },
@@ -1218,11 +1218,11 @@
 							"width": 160,
 							"height": 16,
 							"defUid": 4,
-							"px": [624,752],
+							"px": [624,816],
 							"fieldInstances": [
-								{ "__identifier": "Path", "__value": [{ "cx": 30, "cy": 23 }], "__type": "Array<Point>", "__tile": null, "defUid": 5, "realEditorValues": [{
+								{ "__identifier": "Path", "__value": [{ "cx": 30, "cy": 25 }], "__type": "Array<Point>", "__tile": null, "defUid": 5, "realEditorValues": [{
 									"id": "V_String",
-									"params": ["30,23"]
+									"params": ["30,25"]
 								}] },
 								{ "__identifier": "Speed", "__value": 50, "__type": "Float", "__tile": null, "defUid": 6, "realEditorValues": [] }
 							]

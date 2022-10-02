@@ -22,7 +22,9 @@ use iyes_loopless::prelude::*;
 enum GameState {
     AssetLoading,
     MainMenu,
+    SpawnWorld,
     Gameplay,
+    Dead,
     PauseMenu,
 }
 
@@ -31,7 +33,7 @@ fn main() {
         .add_loopless_state(GameState::AssetLoading)
         .add_loading_state(
             LoadingState::new(GameState::AssetLoading)
-                .continue_to_state(GameState::Gameplay)
+                .continue_to_state(GameState::SpawnWorld)
                 .with_collection::<AssetHolder>(),
         )
         .insert_resource(ImageSettings::default_nearest())

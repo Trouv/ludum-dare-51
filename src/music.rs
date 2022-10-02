@@ -12,8 +12,7 @@ pub struct MusicPlugin;
 
 impl Plugin for MusicPlugin {
     fn build(&self, app: &mut App) {
-        app.add_enter_system(GameState::Gameplay, play_music)
-            .add_system(play_music.run_on_event::<TimeEvent>());
+        app.add_system(play_music.run_on_event::<TimeEvent>().after("update_time"));
     }
 }
 

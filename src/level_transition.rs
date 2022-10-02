@@ -7,7 +7,7 @@ pub struct LevelTransitionPlugin;
 
 impl Plugin for LevelTransitionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_enter_system(GameState::Gameplay, spawn_first_level);
+        app.add_enter_system(GameState::SpawnWorld, spawn_first_level);
     }
 }
 
@@ -22,4 +22,6 @@ fn spawn_first_level(
             ..default()
         });
     }
+
+    commands.insert_resource(NextState(GameState::Gameplay));
 }
