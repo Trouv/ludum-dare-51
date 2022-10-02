@@ -13,6 +13,13 @@ impl Plugin for PlatformPlugin {
     fn build(&self, app: &mut App) {
         app.register_ldtk_entity::<PlatformBundle>("Platform")
             .add_system(
+                |query: Query<&History<PlatformMoment>, Changed<History<PlatformMoment>>>| {
+                    query.for_each(|x| {
+                        dbg!(x.moments.len());
+                    });
+                },
+            )
+            .add_system(
                 platform_movement
                     .run_in_state(GameState::Gameplay)
                     .after("update_time"),
@@ -126,8 +133,7 @@ fn platform_movement(
             let mut new_velocity = (goal_position - transform.translation)
                 .truncate()
                 .normalize()
-                * path.speed
-                * time_scale.0;
+                * path.speed;
 
             if new_velocity.dot(velocity.linvel) <= 0. || history.moments.is_empty() {
                 // passed it!
@@ -137,8 +143,7 @@ fn platform_movement(
                 new_velocity = (goal_position - transform.translation)
                     .normalize_or_zero()
                     .truncate()
-                    * path.speed
-                    * time_scale.0;
+                    * path.speed;
 
                 history.moments.push(Moment {
                     data: PlatformMoment::ChangeDirection {
@@ -149,7 +154,7 @@ fn platform_movement(
                 });
             }
 
-            velocity.linvel = new_velocity;
+            velocity.linvel = new_velocity * time_scale.0;
         }
     } else {
         for (mut transform, mut path, mut history, mut velocity) in query.iter_mut() {

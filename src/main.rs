@@ -5,13 +5,16 @@ mod from_component;
 mod goals;
 mod history;
 mod level_transition;
+mod music;
 mod platform;
 mod player;
+mod ui;
 mod wall;
 
 use bevy::{prelude::*, render::texture::ImageSettings};
 use bevy_asset_loader::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
+use bevy_kira_audio::prelude::*;
 use bevy_rapier2d::prelude::*;
 use iyes_loopless::prelude::*;
 
@@ -34,6 +37,7 @@ fn main() {
         .insert_resource(ImageSettings::default_nearest())
         .add_plugins(DefaultPlugins)
         .insert_resource(Msaa { samples: 1 })
+        .add_plugin(AudioPlugin)
         .add_plugin(LdtkPlugin)
         .insert_resource(LdtkSettings {
             int_grid_rendering: IntGridRendering::Colorful,
@@ -53,6 +57,8 @@ fn main() {
         .add_plugin(platform::PlatformPlugin)
         .add_plugin(animation::SpriteSheetAnimationPlugin)
         .add_plugin(goals::GoalPlugin)
+        .add_plugin(music::MusicPlugin)
+        .add_plugin(ui::UiPlugin)
         .insert_resource(LevelSelection::Index(0))
         .run();
 }
@@ -61,4 +67,8 @@ fn main() {
 struct AssetHolder {
     #[asset(path = "ludum-dare-51.ldtk")]
     pub ldtk: Handle<LdtkAsset>,
+    #[asset(path = "music.ogg")]
+    pub music: Handle<bevy_kira_audio::prelude::AudioSource>,
+    #[asset(path = "Carnevalee Freakshow.ttf")]
+    pub font: Handle<Font>,
 }

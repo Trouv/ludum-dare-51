@@ -90,4 +90,8 @@ pub fn update_time(
         time_since_level_start.0 = 0.;
         time_scale.0 = 0.;
     }
+    if time_since_level_start.0 > 10. {
+        time_since_level_start.0 = 10.;
+        time_scale.0 = 0.;
+    }
 }
