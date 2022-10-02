@@ -71,6 +71,10 @@ struct AssetHolder {
     pub ldtk: Handle<LdtkAsset>,
     #[asset(path = "music.ogg")]
     pub music: Handle<bevy_kira_audio::prelude::AudioSource>,
+    #[asset(path = "victory.ogg")]
+    pub victory: Handle<bevy_kira_audio::prelude::AudioSource>,
+    #[asset(path = "death.ogg")]
+    pub death: Handle<bevy_kira_audio::prelude::AudioSource>,
     #[asset(path = "Carnevalee Freakshow.ttf")]
     pub font: Handle<Font>,
 }
